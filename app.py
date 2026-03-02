@@ -13,18 +13,19 @@ app = Flask(__name__)
 # ---------------------------
 # Load Data
 # ---------------------------
-df = pd.read_csv("stock_features_ready.csv", parse_dates=['Date'])
+df = pd.read_csv("datasets/stock_features_ready.csv", parse_dates=['Date'])
 df.set_index('Date', inplace=True)
 
 # Load AI trend
-df_ai = pd.read_csv("ai_trend_data.csv", parse_dates=['Date'])
+df_ai = pd.read_csv("datasets/ai_trend_data.csv", parse_dates=['Date'])
+
 # ---------------------------
 # Load Models & Scalers
 # ---------------------------
 company_models = {}
-scalers_X = joblib.load("scalers_X.pkl")
-scalers_y = joblib.load("scalers_y.pkl")
-company_features_dict = joblib.load("features.pkl")
+scalers_X = joblib.load("models/scalers_X.pkl")
+scalers_y = joblib.load("models/scalers_y.pkl")
+company_features_dict = joblib.load("models/features.pkl")
 
 for file in os.listdir("models"):
     if file.endswith(".keras"):
@@ -251,4 +252,5 @@ def plot_stock():
 
 # ---------------------------
 if __name__ == "__main__":
+
     app.run(debug=True)
