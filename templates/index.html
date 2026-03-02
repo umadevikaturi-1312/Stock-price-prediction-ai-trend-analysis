@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock AI Trend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
 
+<div class="container">
+    <div class="sidebar">
+        <h3>Companies</h3>
+
+        <!-- IT Companies -->
+        <h4 style="margin-top:10px;">IT Companies</h4>
+        {% set it_companies = ['TCS.NS','INFY.NS','LTIM.NS','TECHM.NS','WIPRO.NS','ACN','CTSH','BSOFT.NS'] %}
+        {% for code, name in companies %}
+            {% if code in it_companies %}
+                <button onclick="loadChart('{{ code }}')">{{ name }}</button>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Non-IT Companies -->
+        <h4 style="margin-top:10px;">Non-IT Companies</h4>
+        {% set non_it_companies = ['HDFCBANK.NS','G','LT.NS','RELIANCE.NS','TATASTEEL.NS'] %}
+        {% for code, name in companies %}
+            {% if code in non_it_companies %}
+                <button onclick="loadChart('{{ code }}')">{{ name }}</button>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+
+    <div class="content">
+        <h2>Live Stock Price Prediction</h2>
+        <div id="chart"></div>
+        <div class="info-boxes">
+            <div class="info-card">
+                <h4>Next Day Price</h4>
+                <p id="next_price">--</p>
+            </div>
+
+            <div class="info-card">
+                <h4>AI Effect</h4>
+                <p id="ai_effect">--</p>
+            </div>
+
+            <div class="info-card">
+                <h4>AI Trend</h4>
+                <p id="ai_trend">--</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadChart(company) {
+    fetch("/plot", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "company=" + encodeURIComponent(company)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        // Parse Plotly figure JSON
+        var fig = JSON.parse(data.figure);
+        Plotly.newPlot('chart', fig.data, fig.layout);
+
+        // Update next day price and AI effect
+        document.getElementById("next_price").textContent = data.next_price;
+        document.getElementById("ai_effect").textContent = data.ai_effect;
+        document.getElementById("ai_trend").textContent = data.trend;    
+        })
+    .catch(err => console.error("Error:", err));
+}
+</script>
+
+</body>
+</html>
