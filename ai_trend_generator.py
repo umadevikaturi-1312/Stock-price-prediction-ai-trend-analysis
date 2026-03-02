@@ -8,35 +8,30 @@ companies = [
 ]
 
 gn = GoogleNews(lang='en', country='IN')
-
 ai_trend_data = []
-
 print("Collecting AI news data...")
 
 for company in companies:
-
     search_term = f"{company} AI OR 'Artificial Intelligence' OR ML"
     search_results = gn.search(search_term, when='1y')
 
     for entry in search_results['entries']:
         try:
             date = pd.to_datetime(entry['published']).normalize()
-
             ai_trend_data.append({
                 "Company": company,
                 "Date": date,
                 "AI_Score": 1   # each news = 1 signal
             })
-
         except:
             continue
-
+            
 # ---------------------------
 # Create dataframe
 # ---------------------------
 df_ai = pd.DataFrame(ai_trend_data)
 
-# ✅ DAILY aggregation instead of MONTHLY
+# DAILY aggregation instead of MONTHLY
 ai_score_daily = (
     df_ai
     .groupby(["Company", "Date"])
@@ -50,15 +45,12 @@ ai_score_daily = (
 final_data = []
 
 for company in companies:
-
     temp = ai_score_daily[ai_score_daily["Company"] == company]
-
     full_dates = pd.date_range(
         start=temp["Date"].min(),
         end=temp["Date"].max(),
         freq="D"
     )
-
     temp = (
         temp.set_index("Date")
             .reindex(full_dates)
@@ -66,7 +58,6 @@ for company in companies:
             .rename_axis("Date")
             .reset_index()
     )
-
     temp["Company"] = company
     final_data.append(temp)
 
@@ -82,6 +73,5 @@ ai_score_daily["AI_Score"] = (
 )
 
 # Save
-ai_score_daily.to_csv("ai_trend_data.csv", index=False)
-
+ai_score_daily.to_csv("datasets/ai_trend_data.csv", index=False)
 print("Daily AI Trend Data Saved Successfully")
